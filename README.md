@@ -1,4 +1,4 @@
-# Capacitor Android 5.7.1 app crash reproduction project
+# Capacitor Android 5.7.2 Camera Plugin Permission Issue
 
 ## Prerequisities
 
@@ -15,25 +15,17 @@
 4. to build and run the app an an Android device:
     - execute the command `ionic build`, then `npx cap sync android` to copy the build from www to the Android native projects and sync native plugins and then `npx cap open android` to open projects in Android Studio
 
-## Reproducing the crash
-Build and run the app on an Android device. The app will crash with the following error message in the logcat output:
-```
-2024-03-04 17:57:05.341 21704-21752 cr_AwBgThreadClient     io.ionic.starter                     E  Client raised exception in shouldInterceptRequest. Re-throwing on UI thread.
-2024-03-04 17:57:05.342 21704-21704 cr_AwBgThreadClient     io.ionic.starter                     E  The following exception was raised by shouldInterceptRequest:
-2024-03-04 17:57:05.343 21704-21704 AndroidRuntime          io.ionic.starter                     D  Shutting down VM
-2024-03-04 17:57:05.353 21704-21704 AndroidRuntime          io.ionic.starter                     E  FATAL EXCEPTION: main
-                                                                                                    Process: io.ionic.starter, PID: 21704
-                                                                                                    java.lang.IndexOutOfBoundsException: No group 1
-                                                                                                    	at java.util.regex.Matcher.group(Matcher.java:589)
-                                                                                                    	at java.util.regex.Matcher.appendEvaluated(Matcher.java:917)
-                                                                                                    	at java.util.regex.Matcher.appendReplacementInternal(Matcher.java:890)
-                                                                                                    	at java.util.regex.Matcher.appendReplacement(Matcher.java:1040)
-                                                                                                    	at java.util.regex.Matcher.replaceFirst(Matcher.java:1468)
-                                                                                                    	at java.lang.String.replaceFirst(String.java:2757)
-                                                                                                    	at com.getcapacitor.JSInjector.getInjectedStream(JSInjector.java:75)
-                                                                                                    	at com.getcapacitor.WebViewLocalServer.handleLocalRequest(WebViewLocalServer.java:411)
-                                                                                                    	at com.getcapacitor.WebViewLocalServer.shouldInterceptRequest(WebViewLocalServer.java:201)
-                                                                                                    	at com.getcapacitor.BridgeWebViewClient.shouldInterceptRequest(BridgeWebViewClient.java:23)
-                                                                                                    	at WV.g6.a(chromium-TrichromeWebViewGoogle6432.aab-stable-616717833:86)
-                                                                                                    	at org.chromium.android_webview.AwContentsBackgroundThreadClient.shouldInterceptRequestFromNative(chromium-TrichromeWebViewGoogle6432
-```
+## Reproducing the issue
+1) Build and run this app on an Android device (I tested with Android 14).
+2) Tap the "Pick Photo" button to open the photo picker.
+3) When permission dialog is shown, tap "Don't Allow" to deny the permission.
+NOTE: The permission dialog is dismissed and the user is allowed to choose the app to pick the photo from.
+4) Select a photo from the gallery.
+NOTE: The user is still allowed to select a photo even the permission has not been granted.
+5) Tap the "Take Photo" button again to open the camera.
+6) When permission dialog is shown, tap "Don't Allow" to deny the permission.
+NOTE: The permission dialog is dismissed and the camera plugin returns the permission denied error.
+NOTE: The user is not allowed to take a photo.
+
+## Expected behavior
+My assumption is that the behavior should be consistent for both the photo picker and the camera. The user should not be allowed to select a photo from the gallery if the permission has not been granted.
